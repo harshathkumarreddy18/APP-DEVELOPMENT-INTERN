@@ -1,0 +1,101 @@
+#MainActivity.kt
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.appcompat.widget.Toolbar
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
+import com.google.android.material.navigation.NavigationView
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var appBarConfiguration: AppBarConfiguration
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        val navView: NavigationView = findViewById(R.id.nav_view)
+        val navController = findNavController(R.id.nav_host_fragment)
+
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.nav_projects
+            ), drawerLayout
+        )
+
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
+        NavigationUI.setupWithNavController(navView, navController)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.nav_host_fragment)
+        return NavigationUI.navigateUp(navController, appBarConfiguration)
+    }
+}
+#ProjectListFragment.kt
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import androidx.navigation.fragment.findNavController
+
+class ProjectListFragment : Fragment() {
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_project_list, container, false)
+
+        val projects = arrayOf("Project 1", "Project 2", "Project 3")
+
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, projects)
+
+        val listView: ListView = view.findViewById(R.id.projectListView)
+        listView.adapter = adapter
+
+        listView.setOnItemClickListener { _, _, position, _ ->
+            val selectedProject = projects[position]
+            val action = ProjectListFragmentDirections.actionNavProjectsToProjectDetailFragment(selectedProject)
+            findNavController().navigate(action)
+        }
+
+        return view
+    }
+}
+#ProjectDetailFragment.kt
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.navigation.fragment.navArgs
+
+class ProjectDetailFragment : Fragment() {
+
+    private val args: ProjectDetailFragmentArgs by navArgs()
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_project_detail, container, false)
+
+        val projectTitle: TextView = view.findViewById(R.id.projectTitle)
+        projectTitle.text = args.projectTitle
+
+        // Additional details or content can be added here
+
+        return view
+    }
+}
