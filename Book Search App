@@ -1,0 +1,106 @@
+//Initialize React Native Project:
+npx react-native init BookSearchApp
+cd BookSearchApp
+//Install Dependencies:
+npm install axios @react-navigation/native @react-navigation/stack react-native-gesture-handler react-native-reanimated
+//Create Components:
+// BookList.js
+import React from 'react';
+import { FlatList, Text, View, Image, TouchableOpacity } from 'react-native';
+
+const BookList = ({ data, onItemPress }) => {
+  return (
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <TouchableOpacity onPress={() => onItemPress(item)}>
+          <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
+            <Image
+              source={{ uri: item.volumeInfo.imageLinks?.thumbnail }}
+              style={{ width: 50, height: 70, marginRight: 10 }}
+            />
+            <View>
+              <Text style={{ fontSize: 16 }}>{item.volumeInfo.title}</Text>
+              <Text>{item.volumeInfo.authors?.join(', ')}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      )}
+    />
+  );
+};
+
+export default BookList;
+// BookDetails.js
+import React from 'react';
+import { View, Text, Image } from 'react-native';
+
+const BookDetails = ({ route }) => {
+  const { item } = route.params;
+
+  return (
+    <View style={{ padding: 20 }}>
+      <Image source={{ uri: item.volumeInfo.imageLinks?.thumbnail }} style={{ width: 100, height: 150, marginBottom: 20 }} />
+      <Text style={{ fontSize: 20, marginBottom: 10 }}>{item.volumeInfo.title}</Text>
+      <Text style={{ fontSize: 16, color: '#666', marginBottom: 10 }}>{item.volumeInfo.authors?.join(', ')}</Text>
+      <Text>{item.volumeInfo.description}</Text>
+    </View>
+  );
+};
+
+export default BookDetails;
+//Create App Componen
+// App.js
+import React, { useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { View, TextInput, Button } from 'react-native';
+import axios from 'axios';
+
+import BookList from './BookList';
+import BookDetails from './BookDetails';
+
+const Stack = createStackNavigator();
+
+const App = () => {
+  const [query, setQuery] = useState('');
+  const [books, setBooks] = useState([]);
+
+  const searchBooks = async () => {
+    try {
+      const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}`);
+      setBooks(response.data.items || []);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    }
+  };
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen
+          name="Home"
+          component={() => (
+            <View style={{ padding: 20 }}>
+              <TextInput
+                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, padding: 5 }}
+                placeholder="Enter search query"
+                onChangeText={(text) => setQuery(text)}
+              />
+              <Button title="Search" onPress={searchBooks} />
+              <BookList data={books} onItemPress={(item) => navigation.navigate('Details', { item })} />
+            </View>
+          )}
+        />
+        <Stack.Screen name="Details" component={BookDetails} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default App;
+//Run the App:
+npx react-native run-android
+# or
+npx react-native run-ios
