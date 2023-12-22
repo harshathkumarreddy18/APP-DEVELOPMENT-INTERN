@@ -1,8 +1,4 @@
-//Initialize React Native Project:
-npx react-native init BookSearchApp
-cd BookSearchApp
-//Install Dependencies:
-npm install axios @react-navigation/native @react-navigation/stack react-native-gesture-handler react-native-reanimated
+
 //Create Components:
 // BookList.js
 import React from 'react';
@@ -31,7 +27,7 @@ const BookList = ({ data, onItemPress }) => {
   );
 };
 
-export default BookList;
+
 // BookDetails.js
 import React from 'react';
 import { View, Text, Image } from 'react-native';
@@ -99,8 +95,4 @@ const App = () => {
   );
 };
 
-export default App;
-//Run the App:
-npx react-native run-android
-# or
-npx react-native run-ios
+
